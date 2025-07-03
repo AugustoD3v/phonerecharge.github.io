@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recarga Rápida - Sua Recarga em Segundos</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="main-header">
+            <h1>Recarga de Celular</h1>
+            <p>Simples, rápido e seguro. Como deve ser.</p>
+        </header>
+
+        <main class="card">
+            <section id="step-1-number">
+                <h2>1. Qual número você quer recarregar?</h2>
+                <div class="input-group">
+                    <input type="tel" id="phone-input" placeholder="(XX) XXXXX-XXXX" maxlength="15">
+                    <button id="verify-button" disabled>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        Verificar Número
+                    </button>
+                </div>
+            </section>
+
+            <section id="step-2-values" class="hidden">
+                <h2>2. Escolha o valor da recarga</h2>
+                <div class="value-options">
+                    <button class="value-card" data-value="10">R$ 10</button>
+                    <button class="value-card" data-value="15">R$ 15</button>
+                    <button class="value-card" data-value="20">R$ 20</button>
+                    <button class="value-card" data-value="25">R$ 25</button>
+                    <button class="value-card" data-value="30">R$ 30</button>
+                    <button class="value-card" data-value="50">R$ 50</button>
+                    <button class="value-card" data-value="100">R$ 100</button>
+                </div>
+            </section>
+
+            <section id="step-3-coupon" class="hidden">
+                <h2>3. Tem um cupom? (Opcional)</h2>
+                <div class="input-group">
+                    <input type="text" id="coupon-input" placeholder="Digite seu cupom">
+                    <button id="apply-coupon-button">Aplicar</button>
+                </div>
+                <div class="coupon-info" id="coupon-message">
+                    <p><span>PRIMEIRARECARGA:</span> ganhe o dobro do valor na sua primeira recarga!</p>
+                </div>
+                <div id="coupon-feedback" class="hidden"></div>
+            </section>
+
+            <section id="step-4-next" class="hidden">
+                 <button id="go-to-payment-button">Ir para Pagamento</button>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const phoneInput = document.getElementById('phone-input');
+            const verifyButton = document.getElementById('verify-button');
+            const step2Values = document.getElementById('step-2-values');
+            const valueCards = document.querySelectorAll('.value-card');
+            const step3Coupon = document.getElementById('step-3-coupon');
+            const step4Next = document.getElementById('step-4-next');
+            const goToPaymentButton = document.getElementById('go-to-payment-button');
+            const couponInput = document.getElementById('coupon-input');
+            const applyCouponButton = document.getElementById('apply-coupon-button');
+            const couponFeedback = document.getElementById('coupon-feedback');
+            const couponMessage = document.getElementById('coupon-message');
+
+            let selectedValue = null;
+            let couponApplied = false;
+
+            phoneInput.addEventListener('input', (e) => {
+                let value = e.target.value.replace(/\D/g, '');
+                value = value.replace(/^(\d{2})(\d)/g, '($1) $2');
+                value = value.replace(/(\d{5})(\d)/, '$1-$2');
+                e.target.value = value;
+
+                verifyButton.disabled = value.length !== 15;
+            });
+
+            verifyButton.addEventListener('click', () => {
+                phoneInput.disabled = true;
+                verifyButton.style.backgroundColor = '#2ecc71';
+                verifyButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check"><polyline points="20 6 9 17 4 12"></polyline></svg> Verificado';
+                step2Values.classList.remove('hidden');
+            });
+
+            valueCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    valueCards.forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    selectedValue = parseFloat(card.dataset.value);
+                    couponApplied = false;
+                    updatePaymentButton();
+                    step3Coupon.classList.remove('hidden');
+                    step4Next.classList.remove('hidden');
+                    couponFeedback.classList.add('hidden');
+                    couponInput.value = '';
+                    couponMessage.style.display = 'block';
+                });
+            });
+
+            applyCouponButton.addEventListener('click', () => {
+                if (couponInput.value.toUpperCase() === 'PRIMEIRARECARGA' && selectedValue) {
+                    couponApplied = true;
+                    couponFeedback.innerHTML = `Cupom aplicado! Seu valor de R$${selectedValue.toFixed(2)} virou <strong>R$${(selectedValue * 2).toFixed(2)}!</strong>`;
+                    couponFeedback.classList.remove('hidden');
+                    couponMessage.style.display = 'none';
+                    updatePaymentButton();
+                } else {
+                    couponApplied = false;
+                    couponFeedback.innerHTML = `Cupom inválido ou não aplicável.`;
+                    couponFeedback.classList.remove('hidden');
+                    updatePaymentButton();
+                }
+            });
+            
+            function updatePaymentButton() {
+                if (selectedValue) {
+                    goToPaymentButton.textContent = `Pagar R$ ${selectedValue.toFixed(2)}`;
+                }
+            }
+
+            goToPaymentButton.addEventListener('click', () => {
+                const paymentValue = selectedValue;
+                const finalValue = couponApplied ? selectedValue * 2 : selectedValue;
+                const phone = phoneInput.value;
+
+                localStorage.setItem('rechargePhone', phone);
+                localStorage.setItem('paymentValue', paymentValue);
+                localStorage.setItem('rechargeValue', finalValue);
+
+                window.location.href = 'pagamento.html';
+            });
+        });
+    </script>
+</body>
+</html>

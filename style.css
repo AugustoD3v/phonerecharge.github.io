@@ -1,0 +1,423 @@
+/* --- GERAL & RESET --- */
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #2ecc71;
+    --danger-color: #e74c3c;
+    --background-color: #f0f2f5;
+    --card-background: #ffffff;
+    --text-color: #333;
+    --gray-text: #777;
+    --border-color: #e0e0e0;
+    --shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.body-principal {
+    align-items: flex-start;
+}
+
+.container {
+    width: 100%;
+    max-width: 550px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* --- CABEÇALHO --- */
+.main-header, .payment-header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.main-header h1, .payment-header h1 {
+    font-size: 2rem;
+    margin-bottom: 5px;
+    color: var(--primary-color);
+}
+
+.main-header p, .payment-header p {
+    color: var(--gray-text);
+    font-size: 1.1rem;
+}
+
+.payment-header h1 strong {
+    color: var(--text-color);
+}
+
+
+/* --- CARD PRINCIPAL --- */
+.card {
+    background: var(--card-background);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    transition: all 0.3s ease;
+}
+
+.card section:not(:last-child) {
+    margin-bottom: 25px;
+}
+
+.card h2 {
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+/* --- GRUPOS DE INPUT --- */
+.input-group {
+    display: flex;
+    gap: 10px;
+}
+
+input[type="tel"], input[type="text"] {
+    flex-grow: 1;
+    padding: 12px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+}
+
+button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+#verify-button {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+#verify-button:disabled {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+}
+
+/* --- OPÇÕES DE VALOR --- */
+.value-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+}
+
+.value-card {
+    background: var(--card-background);
+    border: 2px solid var(--border-color);
+    padding: 20px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+}
+
+.value-card:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.value-card.selected {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+}
+
+
+/* --- CUPOM --- */
+#apply-coupon-button {
+    background-color: #f39c12;
+    color: white;
+}
+
+.coupon-info {
+    background-color: #eaf5fd;
+    border: 1px dashed var(--primary-color);
+    color: var(--primary-color);
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+    text-align: center;
+}
+
+.coupon-info span {
+    font-weight: 700;
+}
+
+#coupon-feedback {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: #e8f8f0;
+    color: #27ae60;
+    font-weight: 500;
+    text-align: center;
+}
+
+
+/* --- BOTÃO DE AVANÇAR / PAGAMENTO --- */
+#go-to-payment-button, #credit-card-form button, #generate-pix-button {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.1rem;
+    background-color: var(--secondary-color);
+    color: white;
+    margin-top: 10px;
+}
+
+/* --- PÁGINA DE PAGAMENTO --- */
+.payment-options {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.payment-card {
+    flex: 1;
+    background: var(--card-background);
+    border: 2px solid var(--border-color);
+    padding: 20px;
+    font-size: 1.1rem;
+    justify-content: center;
+    gap: 10px;
+}
+.payment-card.selected {
+    border-color: var(--primary-color);
+    background-color: #eaf5fd;
+    color: var(--primary-color);
+}
+
+#payment-details section {
+    border-top: 1px solid var(--border-color);
+    padding-top: 20px;
+}
+
+#payment-details section > p,
+#payment-details section > form {
+    margin-top: 15px;
+}
+
+/* --- FORMULÁRIO CARTÃO --- */
+#credit-card-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.form-row {
+    display: flex;
+    gap: 15px;
+}
+.form-row input {
+    width: 100%;
+}
+
+
+/* --- MODAL PIX --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+    animation: fadeInModal 0.3s ease;
+}
+
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+    position: relative;
+    width: 90%;
+    max-width: 400px;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes fadeInModal { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideIn { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+
+.close-modal {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 2rem;
+    color: #aaa;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.modal-content img {
+    max-width: 100%;
+    width: 250px;
+    margin: 20px 0;
+    border: 5px solid var(--border-color);
+    border-radius: 8px;
+}
+
+.timer {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 5px;
+}
+
+.pix-value-display {
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+    color: var(--gray-text);
+}
+
+.pix-value-display strong {
+    color: var(--primary-color);
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+/* --- RESPONSIVIDADE --- */
+@media (max-width: 600px) {
+    .card {
+        padding: 20px;
+    }
+    .value-options {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    .input-group {
+        flex-direction: column;
+    }
+}
+
+/* --- PÁGINAS DE STATUS (SUCESSO/RECUSA) --- */
+.status-card {
+    text-align: center;
+    padding: 40px 30px;
+}
+
+.status-icon {
+    margin-bottom: 20px;
+}
+
+.status-title {
+    font-size: 2rem;
+    margin-bottom: 15px;
+    color: var(--danger-color);
+}
+
+.status-summary {
+    font-size: 1.1rem;
+    color: var(--gray-text);
+    line-height: 1.5;
+    margin-bottom: 25px;
+}
+
+.status-summary strong {
+    color: var(--text-color);
+}
+
+.status-details {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    color: var(--gray-text);
+    border: 1px solid var(--border-color);
+}
+
+.action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+.action-buttons .btn {
+    text-decoration: none;
+    padding: 15px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    display: block;
+    transition: all 0.2s ease;
+}
+
+.action-buttons .btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.action-buttons .btn-primary:hover {
+    background-color: #2980b9;
+}
+
+.action-buttons .btn-secondary {
+    background-color: transparent;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+}
+
+.action-buttons .btn-secondary:hover {
+    background-color: #eaf5fd;
+}
+
+/* --- ANIMAÇÃO SPINNER --- */
+.spinner {
+    display: inline-block;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    width: 18px;
+    height: 18px;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 5px;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
